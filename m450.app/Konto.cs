@@ -10,13 +10,20 @@ public abstract class Konto : IKonto
     private decimal _aufgelaufeneZinsen;
     private DateOnly _letzterZinsStichtag;
 
-    protected Konto(decimal aktivZinssatz, decimal passivZinssatz, DateOnly? kontoErstelltAm = null)
+    protected Konto(
+        decimal aktivZinssatz,
+        decimal passivZinssatz,
+        KontoStatus status = KontoStatus.Standard,
+        DateOnly? kontoErstelltAm = null)
     {
         AktivZinssatz = aktivZinssatz;
         PassivZinssatz = passivZinssatz;
+        Status = status;
         EroeffnetAm = kontoErstelltAm ?? DateOnly.FromDateTime(DateTime.Today);
         _letzterZinsStichtag = EroeffnetAm;
     }
+
+    public KontoStatus Status { get; }
 
     public decimal AktivZinssatz { get; }
 
@@ -76,13 +83,15 @@ public abstract class Konto : IKonto
 
         if (_kontostand > 0m)
         {
-            _aufgelaufeneZinsen += _kontostand * AktivZinssatz / 100m / 360m * tage;
+            var gutschrift = _kontostand * SchreibeZinsGut(_kontostand) / 100m / 360m * tage;
+            _aufgelaufeneZinsen += Math.Round(gutschrift, 2, MidpointRounding.AwayFromZero);
             return;
         }
 
         if (_kontostand < 0m)
         {
-            _aufgelaufeneZinsen -= Math.Abs(_kontostand) * PassivZinssatz / 100m / 360m * tage;
+            var belastung = Math.Abs(_kontostand) * PassivZinssatz / 100m / 360m * tage;
+            _aufgelaufeneZinsen -= Math.Round(belastung, 2, MidpointRounding.AwayFromZero);
         }
     }
 
@@ -125,10 +134,12 @@ public abstract class Konto : IKonto
     /// <summary>Erweiterungspunkt für kontospezifische Bezugsregeln.</summary>
     protected virtual void PruefeBezug(decimal betrag, DateOnly datum)
     {
-        if (betrag > BezugslimiteProBezug)
+        var bezugslimite = HoleBezugslimiteProBezug(datum);
+
+        if (betrag > bezugslimite)
         {
             throw new InvalidOperationException(
-                $"Der Bezug von {betrag} überschreitet die Bezugslimite von {BezugslimiteProBezug}.");
+                $"Der Bezug von {betrag} überschreitet die Bezugslimite von {bezugslimite}.");
         }
 
         if (_kontostand - betrag < -Ueberzugslimite)
@@ -142,6 +153,30 @@ public abstract class Konto : IKonto
     protected virtual void NachKontoabschluss()
     {
     }
+
+    /// <summary>
+    /// Bestimmt den Zinssatz für ein Guthaben gemäss Status und Guthabensklasse.
+    /// </summary>
+    protected virtual decimal SchreibeZinsGut(decimal guthaben)
+    {
+        if (guthaben < 10_000m)
+        {
+            return AktivZinssatz;
+        }
+
+        if (guthaben < 50_000m)
+        {
+            return AktivZinssatz + 0.5m;
+        }
+
+        var zuschlag = Status == KontoStatus.VIP ? 1.5m : 0.75m;
+        return AktivZinssatz + zuschlag;
+    }
+
+    /// <summary>
+    /// Liefert die Bezugslimite für ein bestimmtes Datum; Standardkonten nutzen die fixe Limite.
+    /// </summary>
+    protected virtual decimal HoleBezugslimiteProBezug(DateOnly datum) => BezugslimiteProBezug;
 
     private void BerechneZinsenBis(DateOnly? datum)
     {

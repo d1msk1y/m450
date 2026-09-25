@@ -2,6 +2,8 @@ namespace m450.app;
 
 public interface IKonto
 {
+    KontoStatus Status { get; }
+
     decimal AktivZinssatz { get; }
 
     decimal PassivZinssatz { get; }

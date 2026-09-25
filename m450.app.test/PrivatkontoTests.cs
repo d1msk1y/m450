@@ -111,4 +111,15 @@ public class PrivatkontoTests
         Assert.Equal(1, konto.AuftraegeImJahr);
         Assert.Equal(1000m, konto.Kontostand);
     }
+
+    [Fact]
+    public void Aktivzins_UsesSecondBandFrom10000Inclusive()
+    {
+        var konto = new Privatkonto();
+        konto.ZahleEin(10_000m);
+
+        konto.SchreibeZinsenFuerTage(1);
+
+        Assert.Equal(0.28m, konto.AufgelaufeneZinsen);
+    }
 }

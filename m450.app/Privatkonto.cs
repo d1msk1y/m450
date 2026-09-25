@@ -22,8 +22,9 @@ public class Privatkonto : Konto
         decimal aktivZinssatz = StandardAktivZinssatz,
         decimal passivZinssatz = StandardPassivZinssatz,
         decimal ueberzugslimite = StandardUeberzugslimite,
-        decimal jahresgebuehr = StandardJahresgebuehr)
-        : base(aktivZinssatz, passivZinssatz, kontoErstelltAm)
+        decimal jahresgebuehr = StandardJahresgebuehr,
+        KontoStatus status = KontoStatus.Standard)
+        : base(aktivZinssatz, passivZinssatz, status, kontoErstelltAm)
     {
         _ueberzugslimite = ueberzugslimite;
         _jahresgebuehr = jahresgebuehr;

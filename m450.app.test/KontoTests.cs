@@ -1,10 +1,11 @@
+using System.Runtime.InteropServices.JavaScript;
 using m450.app;
 
 namespace m450.app.test;
 
 /// <summary>Minimaler konkreter Kontotyp, um die Basisklasse isoliert zu testen.</summary>
 internal class Testkonto(decimal aktivZinssatz, decimal passivZinssatz, DateOnly? eroeffnetAm = null)
-    : Konto(aktivZinssatz, passivZinssatz, eroeffnetAm)
+    : Konto(aktivZinssatz, passivZinssatz, KontoStatus.Standard, eroeffnetAm)
 {
     public override decimal Ueberzugslimite => decimal.MaxValue;
 }
@@ -130,5 +131,29 @@ public class KontoTests
 
         // Assert
         Assert.Equal(1015.3m, konto.Kontostand);
+    }
+
+    [Fact]
+    public void Beziehe_FullBalance_ReducesBalanceToZero()
+    {
+        // Arrange
+        var konto = new Testkonto(3.3m, 4.5m);
+        konto.ZahleEin(7200m);
+
+        //Act
+        konto.Beziehe(7200m);
+
+        //Assert
+        Assert.Equal(0m, konto.Kontostand);
+    }
+
+    [Fact]
+    public void Constructor_WithCustomCreationDate_SetsEroeffnetAm()
+    {
+        var fourDaysAgo = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(-4));
+        
+        var konto = new Testkonto(3.4m, 4.5m, fourDaysAgo);
+        
+        Assert.Equal(fourDaysAgo, konto.EroeffnetAm);
     }
 }

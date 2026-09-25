@@ -18,8 +18,9 @@ public class Jugendkonto : Konto
         DateOnly? kontoErstelltAm = null,
         decimal aktivZinssatz = StandardAktivZinssatz,
         decimal passivZinssatz = StandardPassivZinssatz,
-        decimal bezugslimiteProBezug = StandardBezugslimiteProBezug)
-        : base(aktivZinssatz, passivZinssatz, kontoErstelltAm)
+        decimal bezugslimiteProBezug = StandardBezugslimiteProBezug,
+        KontoStatus status = KontoStatus.Standard)
+        : base(aktivZinssatz, passivZinssatz, status, kontoErstelltAm)
     {
         Geburtsdatum = geburtsdatum;
         _bezugslimiteProBezug = bezugslimiteProBezug;
@@ -46,4 +47,5 @@ public class Jugendkonto : Konto
 
         return alter;
     }
+
 }

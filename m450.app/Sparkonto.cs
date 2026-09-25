@@ -12,8 +12,9 @@ public class Sparkonto : Konto
     public Sparkonto(
         DateOnly? kontoErstelltAm = null,
         decimal aktivZinssatz = StandardAktivZinssatz,
-        decimal passivZinssatz = StandardPassivZinssatz)
-        : base(aktivZinssatz, passivZinssatz, kontoErstelltAm)
+        decimal passivZinssatz = StandardPassivZinssatz,
+        KontoStatus status = KontoStatus.Standard)
+        : base(aktivZinssatz, passivZinssatz, status, kontoErstelltAm)
     {
     }
 }

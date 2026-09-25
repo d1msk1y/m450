@@ -69,4 +69,36 @@ public class SparkontoTests
         Assert.Equal(kontoA.AktivZinssatz, kontoB.AktivZinssatz);
         Assert.Equal(kontoA.PassivZinssatz, kontoB.PassivZinssatz);
     }
+
+    [Fact]
+    public void Aktivzins_UsesBalanceBands_AndIgnoresStatusBelow50000()
+    {
+        var standard = new Sparkonto();
+        var vip = new Sparkonto(status: KontoStatus.VIP);
+
+        standard.ZahleEin(9_999m);
+        vip.ZahleEin(9_999m);
+
+        standard.SchreibeZinsenFuerTage(1);
+        vip.SchreibeZinsenFuerTage(1);
+
+        Assert.Equal(0.42m, standard.AufgelaufeneZinsen);
+        Assert.Equal(0.42m, vip.AufgelaufeneZinsen);
+    }
+
+    [Fact]
+    public void Aktivzins_UsesStatusAt50000OrAbove()
+    {
+        var standard = new Sparkonto(status: KontoStatus.Standard);
+        var vip = new Sparkonto(status: KontoStatus.VIP);
+
+        standard.ZahleEin(50_000m);
+        vip.ZahleEin(50_000m);
+
+        standard.SchreibeZinsenFuerTage(1);
+        vip.SchreibeZinsenFuerTage(1);
+
+        Assert.Equal(3.13m, standard.AufgelaufeneZinsen);
+        Assert.Equal(4.17m, vip.AufgelaufeneZinsen);
+    }
 }
