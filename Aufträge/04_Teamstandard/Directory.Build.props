@@ -1,0 +1,10 @@
+<Project>
+    <PropertyGroup>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <EnableNETAnalyzers>true</EnableNETAnalyzers>
+        <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+        <AnalysisLevel>8.0</AnalysisLevel>
+        <AnalysisMode>None</AnalysisMode>
+    </PropertyGroup>
+</Project>
